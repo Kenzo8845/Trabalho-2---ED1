@@ -629,48 +629,103 @@ Lista forma_para_anteparos(Forma f, char orientacao) {
     return anteparos;
 }
 
+
 int forma_sobrepoe_visibilidade(Forma f, Poligono vis) {
     if (f == NULL || vis == NULL) return 0;
     
     EstruturaForma* forma = (EstruturaForma*)f;
     
-    // Obter bounding box da forma
-    double x, y, w = 0, h = 0, r = 0;
+    // Primeiro: testar bounding boxes
+    double xmin_v, ymin_v, xmax_v, ymax_v;
+    poligono_bounding_box(vis, &xmin_v, &ymin_v, &xmax_v, &ymax_v);
+    
+    double xmin_f, ymin_f, xmax_f, ymax_f;
     
     switch (forma->tipo) {
         case TIPO_CIRCULO:
-            x = forma->dados.circulo.x;
-            y = forma->dados.circulo.y;
-            r = forma->dados.circulo.r;
+            xmin_f = forma->dados.circulo.x - forma->dados.circulo.r;
+            ymin_f = forma->dados.circulo.y - forma->dados.circulo.r;
+            xmax_f = forma->dados.circulo.x + forma->dados.circulo.r;
+            ymax_f = forma->dados.circulo.y + forma->dados.circulo.r;
+            break;
             
-            // Verificar se centro do círculo está dentro
-            if (poligono_contem_ponto(vis, x, y)) return 1;
+        case TIPO_RETANGULO:
+            xmin_f = forma->dados.retangulo.x;
+            ymin_f = forma->dados.retangulo.y;
+            xmax_f = forma->dados.retangulo.x + forma->dados.retangulo.w;
+            ymax_f = forma->dados.retangulo.y + forma->dados.retangulo.h;
+            break;
             
-            // Verificar se algum vértice do polígono está dentro do círculo
+        case TIPO_LINHA:
+            xmin_f = (forma->dados.linha.x1 < forma->dados.linha.x2) ? 
+                     forma->dados.linha.x1 : forma->dados.linha.x2;
+            ymin_f = (forma->dados.linha.y1 < forma->dados.linha.y2) ? 
+                     forma->dados.linha.y1 : forma->dados.linha.y2;
+            xmax_f = (forma->dados.linha.x1 > forma->dados.linha.x2) ? 
+                     forma->dados.linha.x1 : forma->dados.linha.x2;
+            ymax_f = (forma->dados.linha.y1 > forma->dados.linha.y2) ? 
+                     forma->dados.linha.y1 : forma->dados.linha.y2;
+            break;
+            
+        case TIPO_TEXTO:
+            xmin_f = forma->dados.texto.x - 100;
+            ymin_f = forma->dados.texto.y - 20;
+            xmax_f = forma->dados.texto.x + 100;
+            ymax_f = forma->dados.texto.y + 20;
+            break;
+            
+        default:
+            return 0;
+    }
+    
+    if (xmax_f < xmin_v || xmin_f > xmax_v ||
+        ymax_f < ymin_v || ymin_f > ymax_v) {
+        return 0;
+    }
+
+    switch (forma->tipo) {
+        case TIPO_CIRCULO: {
+            double cx = forma->dados.circulo.x;
+            double cy = forma->dados.circulo.y;
+            double r = forma->dados.circulo.r;
+            
+
+            if (poligono_contem_ponto(vis, cx, cy)) return 1;
+            
+            for (int angulo = 0; angulo < 360; angulo += 10) {
+                double rad = angulo * 3.14159265358979323846 / 180.0;
+                double px = cx + r * cos(rad);
+                double py = cy + r * sin(rad);
+                if (poligono_contem_ponto(vis, px, py)) return 1;
+            }
+            
+            // Algum vértice do polígono dentro do círculo?
             double* xs, * ys;
             int n;
             poligono_get_vertices(vis, &xs, &ys, &n);
             for (int i = 0; i < n; i++) {
-                double dx = xs[i] - x;
-                double dy = ys[i] - y;
+                double dx = xs[i] - cx;
+                double dy = ys[i] - cy;
                 if (dx*dx + dy*dy <= r*r + 1e-6) return 1;
             }
             
-            // Verificar se alguma aresta está próxima do centro
+            // Distância de alguma aresta do polígono até o centro <= r?
             for (int i = 0; i < n; i++) {
                 int j = (i + 1) % n;
-                double dist = geometria_distancia_ponto_segmento(x, y, xs[i], ys[i], xs[j], ys[j]);
+                double dist = geometria_distancia_ponto_segmento(cx, cy, xs[i], ys[i], xs[j], ys[j]);
                 if (dist <= r + 1e-6) return 1;
             }
-            break;
             
-        case TIPO_RETANGULO:
-            x = forma->dados.retangulo.x;
-            y = forma->dados.retangulo.y;
-            w = forma->dados.retangulo.w;
-            h = forma->dados.retangulo.h;
+            return 0;
+        }
+        
+        case TIPO_RETANGULO: {
+            double x = forma->dados.retangulo.x;
+            double y = forma->dados.retangulo.y;
+            double w = forma->dados.retangulo.w;
+            double h = forma->dados.retangulo.h;
             
-            // Verificar se algum vértice do retângulo está dentro
+            // Algum vértice do retângulo dentro do polígono?
             double vertices_rect[4][2] = {
                 {x, y}, {x+w, y}, {x+w, y+h}, {x, y+h}
             };
@@ -681,7 +736,9 @@ int forma_sobrepoe_visibilidade(Forma f, Poligono vis) {
                 }
             }
             
-            // Verificar se algum vértice do polígono está dentro do bounding box
+            // Algum vértice do polígono dentro do retângulo?
+            double* xs, * ys;
+            int n;
             poligono_get_vertices(vis, &xs, &ys, &n);
             for (int i = 0; i < n; i++) {
                 if (xs[i] >= x - 1e-6 && xs[i] <= x+w + 1e-6 &&
@@ -690,10 +747,10 @@ int forma_sobrepoe_visibilidade(Forma f, Poligono vis) {
                 }
             }
             
-            // Verificar intersecção de arestas (simplificado)
+            // Intersecção de arestas
             for (int i = 0; i < n; i++) {
                 int j = (i + 1) % n;
-                // Checar se aresta do polígono intersecta alguma aresta do retângulo
+                
                 if (geometria_segmentos_intersectam(xs[i], ys[i], xs[j], ys[j],
                                                      x, y, x+w, y)) return 1;
                 if (geometria_segmentos_intersectam(xs[i], ys[i], xs[j], ys[j],
@@ -703,31 +760,64 @@ int forma_sobrepoe_visibilidade(Forma f, Poligono vis) {
                 if (geometria_segmentos_intersectam(xs[i], ys[i], xs[j], ys[j],
                                                      x, y+h, x, y)) return 1;
             }
-            break;
             
-        case TIPO_LINHA:
-            // Checar se algum extremo está dentro ou se intersecta
-            if (poligono_contem_ponto(vis, forma->dados.linha.x1, forma->dados.linha.y1)) return 1;
-            if (poligono_contem_ponto(vis, forma->dados.linha.x2, forma->dados.linha.y2)) return 1;
+            return 0;
+        }
+        
+        case TIPO_LINHA: {
+            double x1 = forma->dados.linha.x1;
+            double y1 = forma->dados.linha.y1;
+            double x2 = forma->dados.linha.x2;
+            double y2 = forma->dados.linha.y2;
             
+            // Algum extremo dentro?
+            if (poligono_contem_ponto(vis, x1, y1)) return 1;
+            if (poligono_contem_ponto(vis, x2, y2)) return 1;
+            
+            // Intersecção com o polígono?
+            double* xs, * ys;
+            int n;
             poligono_get_vertices(vis, &xs, &ys, &n);
             for (int i = 0; i < n; i++) {
                 int j = (i + 1) % n;
-                if (geometria_segmentos_intersectam(
-                    forma->dados.linha.x1, forma->dados.linha.y1,
-                    forma->dados.linha.x2, forma->dados.linha.y2,
-                    xs[i], ys[i], xs[j], ys[j])) {
+                if (geometria_segmentos_intersectam(x1, y1, x2, y2, xs[i], ys[i], xs[j], ys[j])) {
                     return 1;
                 }
             }
-            break;
             
-        case TIPO_TEXTO:
-            // Simplificado: apenas checar âncora
-            if (poligono_contem_ponto(vis, forma->dados.texto.x, forma->dados.texto.y)) {
-                return 1;
+            return 0;
+        }
+        
+        case TIPO_TEXTO: {
+            double xt = forma->dados.texto.x;
+            double yt = forma->dados.texto.y;
+            
+            // Ponto de âncora dentro?
+            if (poligono_contem_ponto(vis, xt, yt)) return 1;
+            
+            // Aproximação - testa pontos em volta da âncora
+            double offset = 60.0;
+            if (poligono_contem_ponto(vis, xt - offset, yt - offset)) return 1;
+            if (poligono_contem_ponto(vis, xt + offset, yt - offset)) return 1;
+            if (poligono_contem_ponto(vis, xt + offset, yt + offset)) return 1;
+            if (poligono_contem_ponto(vis, xt - offset, yt + offset)) return 1;
+            
+            // Segmento do texto intersecta polígono?
+            SegmentoCoords seg = get_texto_segmento(&forma->dados.texto);
+            
+            double* xs, * ys;
+            int n;
+            poligono_get_vertices(vis, &xs, &ys, &n);
+            for (int i = 0; i < n; i++) {
+                int j = (i + 1) % n;
+                if (geometria_segmentos_intersectam(seg.x1, seg.y1, seg.x2, seg.y2,
+                                                     xs[i], ys[i], xs[j], ys[j])) {
+                    return 1;
+                }
             }
-            break;
+            
+            return 0;
+        }
     }
     
     return 0;
