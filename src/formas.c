@@ -3,6 +3,8 @@
 #include "svg.h"
 #include "anteparo.h"
 #include "lista.h"
+#include "geometria.h"
+#include "poligono.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -82,16 +84,7 @@ static char* duplicar_string(const char* s) {
 /*  Constructors das formas */
 /*==========================*/
 
-/**
- * @brief Cria um novo círculo.
- * @param i Identificador único do círculo.
- * @param x Coordenada X do centro.
- * @param y Coordenada Y do centro.
- * @param r Raio do círculo.
- * @param corb Cor da borda.
- * @param corp Cor do preenchimento.
- * @return Forma Ponteiro para a forma criada, ou NULL em caso de erro.
- */
+
 Forma circulo_cria(int i, double x, double y, double r, char *corb, char *corp) {
     EstruturaForma *NovoCirculo = (EstruturaForma*) malloc(sizeof(EstruturaForma));
     if (NovoCirculo == NULL) {
@@ -110,17 +103,7 @@ Forma circulo_cria(int i, double x, double y, double r, char *corb, char *corp) 
     return (Forma)NovoCirculo;
 }
 
-/**
- * @brief Cria um novo retângulo.
- * @param i Identificador único do retângulo.
- * @param x Coordenada X da âncora (canto inferior esquerdo).
- * @param y Coordenada Y da âncora (canto inferior esquerdo).
- * @param w Largura do retângulo.
- * @param h Altura do retângulo.
- * @param corb Cor da borda.
- * @param corp Cor do preenchimento.
- * @return Forma Ponteiro para a forma criada, ou NULL em caso de erro.
- */
+ 
 Forma retangulo_cria(int i, double x, double y, double w, double h, char *corb, char *corp) {
     EstruturaForma *NovoRetangulo = (EstruturaForma*) malloc(sizeof(EstruturaForma));
     if (NovoRetangulo == NULL) {
@@ -140,16 +123,7 @@ Forma retangulo_cria(int i, double x, double y, double w, double h, char *corb, 
     return (Forma)NovoRetangulo;
 }
 
-/**
- * @brief Cria uma nova linha.
- * @param i Identificador único da linha.
- * @param x1 Coordenada X do ponto inicial.
- * @param y1 Coordenada Y do ponto inicial.
- * @param x2 Coordenada X do ponto final.
- * @param y2 Coordenada Y do ponto final.
- * @param cor Cor da linha.
- * @return Forma Ponteiro para a forma criada, ou NULL em caso de erro.
- */
+
 Forma linha_cria(int i, double x1, double y1, double x2, double y2, char *cor) {
     EstruturaForma *NovaLinha = (EstruturaForma*) malloc(sizeof(EstruturaForma));
     if (NovaLinha == NULL) {
@@ -168,18 +142,7 @@ Forma linha_cria(int i, double x1, double y1, double x2, double y2, char *cor) {
     return (Forma)NovaLinha;
 }
 
-/**
- * @brief Cria um novo texto.
- * @param i Identificador único do texto.
- * @param x Coordenada X da âncora.
- * @param y Coordenada Y da âncora.
- * @param corb Cor da borda.
- * @param corp Cor do preenchimento.
- * @param a Posição da âncora ('i': início, 'm': meio, 'f': fim).
- * @param txto String com o texto.
- * @param e Estilo do texto (família, peso, tamanho da fonte).
- * @return Forma Ponteiro para a forma criada, ou NULL em caso de erro.
- */
+
 Forma texto_cria(int i, double x, double y, char* corb, char *corp, char a, char *txto, Estilo e) {
     EstruturaForma *NovoTexto = (EstruturaForma*) malloc(sizeof(EstruturaForma));
     if (NovoTexto == NULL) {
@@ -204,11 +167,8 @@ Forma texto_cria(int i, double x, double y, char* corb, char *corp, char a, char
 /*  Destructor das formas   */
 /*==========================*/
 
-/**
- * @brief Libera a memória alocada para uma forma.
- * @param f Forma a ser destruída.
- */
-void forma_destruir(Forma f) {
+
+void forma_destroi(Forma f) {
     EstruturaForma *forma = (EstruturaForma *)f;
     if (f == NULL) { 
         return;
@@ -244,11 +204,7 @@ void forma_destruir(Forma f) {
 /* Getters das formas */
 /*====================*/
 
-/**
- * @brief Retorna o identificador único da forma.
- * @param f Forma.
- * @return int ID da forma, ou -1 em caso de erro.
- */
+
 int forma_getId(Forma f) {
     EstruturaForma *forma = (EstruturaForma *)f;
     if (f == NULL) { 
@@ -257,11 +213,7 @@ int forma_getId(Forma f) {
     return forma->id;
 }
 
-/**
- * @brief Retorna a cor de preenchimento da forma.
- * @param f Forma.
- * @return char* Cor de preenchimento, ou NULL em caso de erro.
- */
+
 char* forma_getCorPreenchimento(Forma f) {
     EstruturaForma* forma = (EstruturaForma*) f;
     if (f == NULL) {
@@ -287,11 +239,7 @@ char* forma_getCorPreenchimento(Forma f) {
     return NULL;
 }
 
-/**
- * @brief Retorna a cor da borda da forma.
- * @param f Forma.
- * @return char* Cor da borda, ou NULL em caso de erro.
- */
+
 char* forma_getCorBorda(Forma f) {
     EstruturaForma* forma = (EstruturaForma*) f;
     if (f == NULL) {
@@ -316,11 +264,7 @@ char* forma_getCorBorda(Forma f) {
     return NULL;
 }
 
-/**
- * @brief Retorna a coordenada X da âncora da forma.
- * @param f Forma.
- * @return double Coordenada X, ou -1 em caso de erro.
- */
+
 double forma_getX(Forma f) {
     EstruturaForma* forma = (EstruturaForma*) f;
     if (f == NULL) {
@@ -347,11 +291,7 @@ double forma_getX(Forma f) {
     return -1;
 }
 
-/**
- * @brief Retorna a coordenada Y da âncora da forma.
- * @param f Forma.
- * @return double Coordenada Y, ou -1 em caso de erro.
- */
+
 double forma_getY(Forma f) {
     EstruturaForma* forma = (EstruturaForma*) f;
     if (f == NULL) {
@@ -382,11 +322,7 @@ double forma_getY(Forma f) {
 /*  Setters e operações das formas  */
 /*==================================*/
 
-/**
- * @brief Altera a cor da borda de uma forma.
- * @param f Forma a ser modificada.
- * @param novaCorBorda Nova cor da borda (formato "#RRGGBB").
- */
+
 void forma_setCorBorda(Forma f, char* novaCorBorda) {
     if (novaCorBorda == NULL || novaCorBorda[0] != '#') {
         printf("Erro: cor invalida em forma_setCorBorda\n");
@@ -428,11 +364,7 @@ void forma_setCorBorda(Forma f, char* novaCorBorda) {
     }
 }
 
-/**
- * @brief Altera a cor de preenchimento de uma forma.
- * @param f Forma a ser modificada.
- * @param novaCorPreenchimento Nova cor de preenchimento.
- */
+
 void forma_setCorPreenchimento(Forma f, char* novaCorPreenchimento) {
     if (novaCorPreenchimento == NULL || novaCorPreenchimento[0] != '#') {
         printf("Erro: cor invalida em forma_setCorPreenchimento\n");
@@ -474,15 +406,7 @@ void forma_setCorPreenchimento(Forma f, char* novaCorPreenchimento) {
     }
 }
 
-/*=======================*/
-/* Função de Desenho SVG */
-/*=======================*/
 
-/**
- * @brief Desenha uma forma em um arquivo SVG.
- * @param f Forma a ser desenhada.
- * @param svg_file Ponteiro para o arquivo SVG aberto.
- */
 void forma_desenhaSvg(Forma f, FILE* svg_file) {
     EstruturaForma *forma = (EstruturaForma*) f; 
     if (forma == NULL || svg_file == NULL) {
@@ -524,20 +448,12 @@ void forma_desenhaSvg(Forma f, FILE* svg_file) {
     }
 }
 
-/*========================================*/
-/* Conversão de Forma para Anteparos     */
-/*========================================*/
-
 // Estrutura auxiliar para coordenadas de segmento de texto
 typedef struct {
     double x1, y1, x2, y2;
 } SegmentoCoords;
 
-/**
- * @brief Calcula as coordenadas do segmento equivalente de um texto.
- * @param texto Estrutura interna do texto.
- * @return SegmentoCoords Coordenadas do segmento.
- */
+
 static SegmentoCoords get_texto_segmento(EstruturaTexto *texto) {
     SegmentoCoords seg;
     double xt = texto->x;
@@ -581,21 +497,61 @@ static SegmentoCoords get_texto_segmento(EstruturaTexto *texto) {
     return seg;
 }
 
+
+static int proximo_id_clone = 50000;
+
+Forma forma_clonar(Forma original, double dx, double dy) {
+    EstruturaForma *forma = (EstruturaForma *)original;
+    if (original == NULL) { 
+        return NULL;
+    }
+
+    int novoId = proximo_id_clone++;
+
+    switch (forma->tipo) {
+        case TIPO_CIRCULO:
+            return circulo_cria(novoId, 
+                                forma->dados.circulo.x + dx, 
+                                forma->dados.circulo.y + dy, 
+                                forma->dados.circulo.r, 
+                                forma->dados.circulo.corb, 
+                                forma->dados.circulo.corp);
+
+        case TIPO_RETANGULO:
+            return retangulo_cria(novoId, 
+                                  forma->dados.retangulo.x + dx, 
+                                  forma->dados.retangulo.y + dy, 
+                                  forma->dados.retangulo.w, 
+                                  forma->dados.retangulo.h, 
+                                  forma->dados.retangulo.corb, 
+                                  forma->dados.retangulo.corp);
+
+        case TIPO_LINHA:
+            return linha_cria(novoId, 
+                              forma->dados.linha.x1 + dx, 
+                              forma->dados.linha.y1 + dy, 
+                              forma->dados.linha.x2 + dx, 
+                              forma->dados.linha.y2 + dy, 
+                              forma->dados.linha.cor);
+
+        case TIPO_TEXTO:
+            return texto_cria(novoId, 
+                              forma->dados.texto.x + dx, 
+                              forma->dados.texto.y + dy, 
+                              forma->dados.texto.corb, 
+                              forma->dados.texto.corp, 
+                              forma->dados.texto.a, 
+                              forma->dados.texto.txto, 
+                              estilo_clona(forma->dados.texto.estilo));
+    }
+
+    return NULL;
+}
+
 // Contador global para IDs únicos de anteparos
 static int proximo_id_anteparo = 100000;
 
-/**
- * @brief Converte uma forma em anteparos (segmentos).
- * 
- * - Círculo: 1 segmento (horizontal ou vertical, conforme orientação)
- * - Retângulo: 4 segmentos (os 4 lados)
- * - Linha: 1 segmento (ela mesma)
- * - Texto: 1 segmento (baseado na âncora e comprimento)
- * 
- * @param f Forma a ser convertida.
- * @param orientacao Orientação do segmento para círculos ('h': horizontal, 'v': vertical).
- * @return Lista Lista de anteparos criados, ou NULL em caso de erro.
- */
+
 Lista forma_para_anteparos(Forma f, char orientacao) {
     EstruturaForma* forma = (EstruturaForma*)f;
     if (forma == NULL) {
@@ -619,12 +575,10 @@ Lista forma_para_anteparos(Forma f, char orientacao) {
             Anteparo ant;
             if (orientacao == 'h') {
                 // Segmento horizontal: passa pelo centro
-                ant = anteparo_cria(proximo_id_anteparo++, 
-                                    cx - r, cy, cx + r, cy, cor);
+                ant = anteparo_cria(proximo_id_anteparo++, cx - r, cy, cx + r, cy, cor);
             } else {  // 'v'
                 // Segmento vertical: passa pelo centro
-                ant = anteparo_cria(proximo_id_anteparo++, 
-                                    cx, cy - r, cx, cy + r, cor);
+                ant = anteparo_cria(proximo_id_anteparo++, cx, cy - r, cx, cy + r, cor);
             }
             
             lista_adiciona(anteparos, ant);
@@ -638,35 +592,26 @@ Lista forma_para_anteparos(Forma f, char orientacao) {
             double h = forma->dados.retangulo.h;
             
             // Lado superior
-            Anteparo ant1 = anteparo_cria(proximo_id_anteparo++, 
-                                          x, y, x + w, y, cor);
+            Anteparo ant1 = anteparo_cria(proximo_id_anteparo++, x, y, x + w, y, cor);
             lista_adiciona(anteparos, ant1);
             
             // Lado direito
-            Anteparo ant2 = anteparo_cria(proximo_id_anteparo++, 
-                                          x + w, y, x + w, y + h, cor);
+            Anteparo ant2 = anteparo_cria(proximo_id_anteparo++, x + w, y, x + w, y + h, cor);
             lista_adiciona(anteparos, ant2);
             
             // Lado inferior
-            Anteparo ant3 = anteparo_cria(proximo_id_anteparo++, 
-                                          x + w, y + h, x, y + h, cor);
+            Anteparo ant3 = anteparo_cria(proximo_id_anteparo++, x + w, y + h, x, y + h, cor);
             lista_adiciona(anteparos, ant3);
             
             // Lado esquerdo
-            Anteparo ant4 = anteparo_cria(proximo_id_anteparo++, 
-                                          x, y + h, x, y, cor);
+            Anteparo ant4 = anteparo_cria(proximo_id_anteparo++, x, y + h, x, y, cor);
             lista_adiciona(anteparos, ant4);
             break;
         }
         
         case TIPO_LINHA: {
             // Linha já é um segmento
-            Anteparo ant = anteparo_cria(proximo_id_anteparo++,
-                                         forma->dados.linha.x1,
-                                         forma->dados.linha.y1,
-                                         forma->dados.linha.x2,
-                                         forma->dados.linha.y2,
-                                         cor);
+            Anteparo ant = anteparo_cria(proximo_id_anteparo++, forma->dados.linha.x1, forma->dados.linha.y1, forma->dados.linha.x2, forma->dados.linha.y2, cor);
             lista_adiciona(anteparos, ant);
             break;
         }
@@ -675,12 +620,115 @@ Lista forma_para_anteparos(Forma f, char orientacao) {
             // Converte texto em segmento
             SegmentoCoords seg = get_texto_segmento(&forma->dados.texto);
             
-            Anteparo ant = anteparo_cria(proximo_id_anteparo++,
-                                         seg.x1, seg.y1, seg.x2, seg.y2, cor);
+            Anteparo ant = anteparo_cria(proximo_id_anteparo++, seg.x1, seg.y1, seg.x2, seg.y2, cor);
             lista_adiciona(anteparos, ant);
             break;
         }
     }
     
     return anteparos;
+}
+
+int forma_sobrepoe_visibilidade(Forma f, Poligono vis) {
+    if (f == NULL || vis == NULL) return 0;
+    
+    EstruturaForma* forma = (EstruturaForma*)f;
+    
+    // Obter bounding box da forma
+    double x, y, w = 0, h = 0, r = 0;
+    
+    switch (forma->tipo) {
+        case TIPO_CIRCULO:
+            x = forma->dados.circulo.x;
+            y = forma->dados.circulo.y;
+            r = forma->dados.circulo.r;
+            
+            // Verificar se centro do círculo está dentro
+            if (poligono_contem_ponto(vis, x, y)) return 1;
+            
+            // Verificar se algum vértice do polígono está dentro do círculo
+            double* xs, * ys;
+            int n;
+            poligono_get_vertices(vis, &xs, &ys, &n);
+            for (int i = 0; i < n; i++) {
+                double dx = xs[i] - x;
+                double dy = ys[i] - y;
+                if (dx*dx + dy*dy <= r*r + 1e-6) return 1;
+            }
+            
+            // Verificar se alguma aresta está próxima do centro
+            for (int i = 0; i < n; i++) {
+                int j = (i + 1) % n;
+                double dist = geometria_distancia_ponto_segmento(x, y, xs[i], ys[i], xs[j], ys[j]);
+                if (dist <= r + 1e-6) return 1;
+            }
+            break;
+            
+        case TIPO_RETANGULO:
+            x = forma->dados.retangulo.x;
+            y = forma->dados.retangulo.y;
+            w = forma->dados.retangulo.w;
+            h = forma->dados.retangulo.h;
+            
+            // Verificar se algum vértice do retângulo está dentro
+            double vertices_rect[4][2] = {
+                {x, y}, {x+w, y}, {x+w, y+h}, {x, y+h}
+            };
+            
+            for (int i = 0; i < 4; i++) {
+                if (poligono_contem_ponto(vis, vertices_rect[i][0], vertices_rect[i][1])) {
+                    return 1;
+                }
+            }
+            
+            // Verificar se algum vértice do polígono está dentro do bounding box
+            poligono_get_vertices(vis, &xs, &ys, &n);
+            for (int i = 0; i < n; i++) {
+                if (xs[i] >= x - 1e-6 && xs[i] <= x+w + 1e-6 &&
+                    ys[i] >= y - 1e-6 && ys[i] <= y+h + 1e-6) {
+                    return 1;
+                }
+            }
+            
+            // Verificar intersecção de arestas (simplificado)
+            for (int i = 0; i < n; i++) {
+                int j = (i + 1) % n;
+                // Checar se aresta do polígono intersecta alguma aresta do retângulo
+                if (geometria_segmentos_intersectam(xs[i], ys[i], xs[j], ys[j],
+                                                     x, y, x+w, y)) return 1;
+                if (geometria_segmentos_intersectam(xs[i], ys[i], xs[j], ys[j],
+                                                     x+w, y, x+w, y+h)) return 1;
+                if (geometria_segmentos_intersectam(xs[i], ys[i], xs[j], ys[j],
+                                                     x+w, y+h, x, y+h)) return 1;
+                if (geometria_segmentos_intersectam(xs[i], ys[i], xs[j], ys[j],
+                                                     x, y+h, x, y)) return 1;
+            }
+            break;
+            
+        case TIPO_LINHA:
+            // Checar se algum extremo está dentro ou se intersecta
+            if (poligono_contem_ponto(vis, forma->dados.linha.x1, forma->dados.linha.y1)) return 1;
+            if (poligono_contem_ponto(vis, forma->dados.linha.x2, forma->dados.linha.y2)) return 1;
+            
+            poligono_get_vertices(vis, &xs, &ys, &n);
+            for (int i = 0; i < n; i++) {
+                int j = (i + 1) % n;
+                if (geometria_segmentos_intersectam(
+                    forma->dados.linha.x1, forma->dados.linha.y1,
+                    forma->dados.linha.x2, forma->dados.linha.y2,
+                    xs[i], ys[i], xs[j], ys[j])) {
+                    return 1;
+                }
+            }
+            break;
+            
+        case TIPO_TEXTO:
+            // Simplificado: apenas checar âncora
+            if (poligono_contem_ponto(vis, forma->dados.texto.x, forma->dados.texto.y)) {
+                return 1;
+            }
+            break;
+    }
+    
+    return 0;
 }

@@ -1,172 +1,153 @@
-// formas.h
 #ifndef FORMAS_H
 #define FORMAS_H
 
 #include "estilo.h"
 #include "anteparo.h"
 #include "lista.h"
+#include "poligono.h"
 #include <stdio.h>
 
 /*
- * TAD de Formas Geométricas.
- * 
- * Representa formas básicas (círculo, retângulo, linha, texto) usadas
- * no sistema. Cada forma possui um identificador único, coordenadas e cores.
- * 
- * Este arquivo contém funções para criar, manipular e desenhar formas,
- * além de convertê-las em anteparos (segmentos) para o algoritmo de visibilidade.
- */
+* TAD de Formas Geométricas.
+* Representa os objetos da cidade (Círculos, Retângulos, Linhas, Textos).
+* Cada forma possui ID, posição, dimensões e cores.
+* Além de serem desenhadas no SVG, elas podem ser "explodidas" em Anteparos
+* para bloquear a visão no algoritmo de visibilidade.
+*/
 
 typedef void* Forma;
 
 /*==========================*/
-/*  Constructors das formas */
+/* Construtores            */
 /*==========================*/
 
 /**
- * @brief Cria um novo círculo.
- * @param i Identificador único do círculo.
- * @param x Coordenada X do centro.
- * @param y Coordenada Y do centro.
- * @param r Raio do círculo.
- * @param corb Cor da borda (formato "#RRGGBB").
- * @param corp Cor do preenchimento (formato "#RRGGBB").
- * @return Forma Ponteiro para a forma criada, ou NULL em caso de erro.
+ * @brief Cria um Círculo.
+ * @param i ID da forma.
+ * @param x, y Centro do círculo.
+ * @param r Raio.
+ * @param corb Cor da borda.
+ * @param corp Cor do preenchimento.
+ * @return Forma Ponteiro para o círculo criado.
  */
 Forma circulo_cria(int i, double x, double y, double r, char *corb, char *corp);
 
 /**
- * @brief Cria um novo retângulo.
- * @param i Identificador único do retângulo.
- * @param x Coordenada X da âncora (canto inferior esquerdo).
- * @param y Coordenada Y da âncora (canto inferior esquerdo).
- * @param w Largura do retângulo.
- * @param h Altura do retângulo.
+ * @brief Cria um Retângulo.
+ * @param i ID da forma.
+ * @param x, y Canto inferior esquerdo (âncora).
+ * @param w Largura.
+ * @param h Altura.
  * @param corb Cor da borda.
  * @param corp Cor do preenchimento.
- * @return Forma Ponteiro para a forma criada, ou NULL em caso de erro.
+ * @return Forma Ponteiro para o retângulo criado.
  */
 Forma retangulo_cria(int i, double x, double y, double w, double h, char *corb, char *corp);
 
 /**
- * @brief Cria uma nova linha.
- * @param i Identificador único da linha.
- * @param x1 Coordenada X do ponto inicial.
- * @param y1 Coordenada Y do ponto inicial.
- * @param x2 Coordenada X do ponto final.
- * @param y2 Coordenada Y do ponto final.
+ * @brief Cria uma Linha.
+ * @param i ID da forma.
+ * @param x1, y1 Ponto inicial.
+ * @param x2, y2 Ponto final.
  * @param cor Cor da linha.
- * @return Forma Ponteiro para a forma criada, ou NULL em caso de erro.
+ * @return Forma Ponteiro para a linha criada.
  */
 Forma linha_cria(int i, double x1, double y1, double x2, double y2, char *cor);
 
 /**
- * @brief Cria um novo texto.
- * @param i Identificador único do texto.
- * @param x Coordenada X da âncora.
- * @param y Coordenada Y da âncora.
- * @param corb Cor da borda.
- * @param corp Cor do preenchimento.
- * @param a Posição da âncora ('i': início, 'm': meio, 'f': fim).
- * @param txto String com o texto (pode incluir espaços).
- * @param e Estilo do texto (família, peso, tamanho da fonte).
- * @return Forma Ponteiro para a forma criada, ou NULL em caso de erro.
+ * @brief Cria um Texto.
+ * @param i ID da forma.
+ * @param x, y Ponto âncora.
+ * @param corb Cor da borda (stroke).
+ * @param corp Cor do preenchimento (fill).
+ * @param a Tipo de âncora ('i'nício, 'm'eio, 'f'im).
+ * @param txto Conteúdo do texto.
+ * @param estilo Estilo de fonte (fonte, peso, tamanho).
+ * @return Forma Ponteiro para o texto criado.
  */
-Forma texto_cria(int i, double x, double y, char* corb, char *corp, char a, char *txto, Estilo e);
+Forma texto_cria(int i, double x, double y, char *corb, char *corp, char a, char *txto, Estilo estilo);
 
 /*==========================*/
-/*  Destructor das formas   */
+/* Destrutor               */
+/*==========================*/
+/**
+ * @brief Destrói a forma e libera seus recursos (strings, estruturas).
+ * @param f A forma a ser destruída.
+ */
+void forma_destroi(Forma f);
+
+/*==========================*/
+/* Getters e Setters       */
 /*==========================*/
 
 /**
- * @brief Libera a memória alocada para uma forma.
- * @param f Forma a ser destruída.
- */
-void forma_destruir(Forma f);
-
-/*====================*/
-/* Getters das formas */
-/*====================*/
-
-/**
- * @brief Retorna o identificador único da forma.
- * @param f Forma.
- * @return int ID da forma, ou -1 em caso de erro.
+ * @brief Retorna o ID da forma.
+ * @param f A forma.
+ * @return int O ID.
  */
 int forma_getId(Forma f);
 
 /**
- * @brief Retorna a cor de preenchimento da forma.
- * @param f Forma.
- * @return char* Cor de preenchimento, ou NULL em caso de erro.
- */
-char* forma_getCorPreenchimento(Forma f);
-
-/**
- * @brief Retorna a cor da borda da forma.
- * @param f Forma.
- * @return char* Cor da borda, ou NULL em caso de erro.
- */
-char* forma_getCorBorda(Forma f);
-
-/**
  * @brief Retorna a coordenada X da âncora da forma.
- * @param f Forma.
- * @return double Coordenada
- * X, ou -1 em caso de erro.
-*/
+ */
 double forma_getX(Forma f);
-/**
 
-@brief Retorna a coordenada Y da âncora da forma.
-@param f Forma.
-@return double Coordenada Y, ou -1 em caso de erro.
-*/
+/**
+ * @brief Retorna a coordenada Y da âncora da forma.
+ */
 double forma_getY(Forma f);
 
-/*=================================*/
-/*  Setters e operações das formas */
-/*=================================*/
-
-/** 
-@brief Altera a cor da borda de uma forma.
-@param f Forma a ser modificada.
-@param novaCorBorda Nova cor da borda (formato "#RRGGBB").
-*/
-void forma_setCorBorda(Forma f, char *novaCorBorda);
+/**
+ * @brief Atualiza a cor de borda.
+ * @param f A forma.
+ * @param cor Nova cor.
+ */
+void forma_setCorBorda(Forma f, char* cor);
 
 /**
-@brief Altera a cor de preenchimento de uma forma.
-@param f Forma a ser modificada.
-@param novaCorPreenchimento Nova cor de preenchimento.
-*/
-void forma_setCorPreenchimento(Forma f, char *novaCorPreenchimento);
+ * @brief Atualiza a cor de preenchimento.
+ * @param f A forma.
+ * @param cor Nova cor.
+ */
+void forma_setCorPreenchimento(Forma f, char* cor);
 
-/*=========================*/
-/* Função de Desenho em SVG*/
-/*=========================*/
+/*==========================*/
+/* Operações Avançadas     */
+/*==========================*/
 
 /**
-@brief Desenha uma forma em um arquivo SVG.
-@param f Forma a ser desenhada.
-@param svg_file Ponteiro para o arquivo SVG aberto.
-*/
-void forma_desenhaSvg(Forma f, FILE* svg_file);
+ * @brief Desenha a forma no arquivo SVG fornecido.
+ * @param f A forma.
+ * @param svg O arquivo aberto.
+ */
+void forma_desenhaSvg(Forma f, FILE* svg);
 
-//========================================/
-/* Conversão de Forma para Anteparos     /
-/========================================*
-/
 /**
-@brief Converte uma forma em anteparos (segmentos).
-Círculo: 1 segmento (horizontal ou vertical)
-Retângulo: 4 segmentos (os 4 lados)
-Linha: 1 segmento (ela mesma)
-Texto: 1 segmento (baseado na âncora)
-@param f Forma a ser convertida.
-@param orientacao Orientação para círculos ('h': horizontal, 'v': vertical).
-@return Lista Lista de anteparos criados, ou NULL em caso de erro.
-*/
+ * @brief Cria um clone de uma forma, transladando-a.
+ * @param original Forma a ser clonada.
+ * @param dx Deslocamento em X.
+ * @param dy Deslocamento em Y.
+ * @return Forma Clone da forma, ou NULL em caso de erro.
+ */
+Forma forma_clonar(Forma original, double dx, double dy);
+
+/**
+ * @brief Converte a forma geométrica em um ou mais Anteparos (segmentos).
+ * - Retângulos geram 4 anteparos.
+ * - Linhas geram 1 anteparo.
+ * - Textos geram o "Bounding Box" como anteparos.
+ * - Círculos: Geralmente aproximados ou tratados como 1 anteparo (dependendo da regra do projeto).
+ * * @param f A forma a ser convertida.
+ * @param l A lista onde os novos anteparos serão inseridos.
+ */
 Lista forma_para_anteparos(Forma f, char orientacao);
+
+/**
+ * @brief Verifica se uma forma sobrepõe parcialmente com uma região de visibilidade
+ * @param f Forma a testar
+ * @param vis Polígono da região de visibilidade
+ * @return 1 se sobrepõe, 0 caso contrário
+ */
+int forma_sobrepoe_visibilidade(Forma f, Poligono vis);
 
 #endif
