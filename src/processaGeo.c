@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-Lista processaGeo(const char *dir_entrada, const char *path_geo) {
+Lista processaGeo(const char *path_geo) {
     FILE *arquivo_geo = fopen(path_geo, "r");
     if (arquivo_geo == NULL) {
         printf("erro ao abrir arquivo geo\n");

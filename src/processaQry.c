@@ -112,6 +112,8 @@ void processaQry(const char *path_qry, Lista formas, const char *path_svg_saida,
                 }
                 free(arr_ant);
             }
+
+            svg_desenha_asterisco(svg_saida, x, y);
             
             // Calcula região de visibilidade
             Poligono vis = calcula_regiao_visibilidade(x, y, anteparos);
@@ -174,7 +176,7 @@ void processaQry(const char *path_qry, Lista formas, const char *path_svg_saida,
                 free(arr_ant);
             }
             
-            // Calcula região de visibilidade
+
             Poligono vis = calcula_regiao_visibilidade(x, y, anteparos);
             
             if (vis != NULL) {
