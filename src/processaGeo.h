@@ -7,13 +7,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/**
- * @brief Abre o arquivo .geo em formato de leitura.
- * Cria as formas e vai adicionando-as na ordem de leitura ao chão.
- * @param geo_path Nome do arquivo .geo.
- * @param path_svg_geo Nome do arquivo svg com as formas no chão depois do processamento do arquivo geo.
- * @return Lista preenchida com as formas, ou NULL em caso de erro.
- */
-Lista processaGeo(const char* geo_path, const char *path_svg_geo);
+
+/* Modulo que processa o arquivo geo.
+* Gera a lista com as formas posicionadas, e tambem o svg inicial.
+*/
+
+
+Lista processaGeo(const char *dir_entrada, const char *path_geo);
 
 #endif

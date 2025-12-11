@@ -1,39 +1,28 @@
 #include "lista.h" 
 #include "formas.h" 
-#include "estilo.h" 
-#include "svg.h"
-
+#include "estilo.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-Lista processaGeo(const char *path_geo, const char *path_svg_geo) {
+Lista processaGeo(const char *dir_entrada, const char *path_geo) {
     FILE *arquivo_geo = fopen(path_geo, "r");
     if (arquivo_geo == NULL) {
         printf("erro ao abrir arquivo geo\n");
         return NULL;
     }
 
-    FILE *svg_file = svg_inicia(path_svg_geo);
-    if (svg_file == NULL) {
-        printf("Erro: Nao foi possivel criar o SVG 1 (geo) em %s\n", path_svg_geo);
-    }
-
-
-    Lista lista_formas = chao_cria();
+    Lista lista_formas = lista_cria();
     if (lista_formas == NULL) {
         fclose(arquivo_geo);
-        if (svg_file) svg_finaliza(svg_file);
         return NULL;
     }
 
     char buffer[256];
     char comando[16];
-
     char fFamily[32] = "sans";
     char fWeight[8] = "n";
-    double fSize = 10;
-
+    double fSize = 10; 
 
     while (fgets(buffer, sizeof(buffer), arquivo_geo) != NULL) {
         if (buffer[0] == '\n' || buffer[0] == '#') {
@@ -48,50 +37,26 @@ Lista processaGeo(const char *path_geo, const char *path_svg_geo) {
             double x, y, r; 
             char corb[32] = "", corp[32] = "";
             int n_lidos = sscanf(buffer, "c %i %lf %lf %lf %s %s", &id, &x, &y, &r, corb, corp);
-
             if (n_lidos < 4) continue;
-
             Forma f = circulo_cria(id, x, y, r, corb, corp);
-
-            if (f && svg_file) {
-                forma_desenhaSvg(f, svg_file);
-            }
-
             lista_adiciona(lista_formas, f);
         }
-
         else if (strcmp(comando, "r") == 0) {
             int id;
             double x, y, w, h;
             char corb[32] = "", corp[32] = "";
             int n_lidos = sscanf(buffer, "r %i %lf %lf %lf %lf %s %s", &id, &x, &y, &w, &h, corb, corp);
-
             if (n_lidos < 5) continue;
-
             Forma f = retangulo_cria(id, x, y, w, h, corb, corp);
-
-            if (f && svg_file) {
-                forma_desenhaSvg(f, svg_file);
-            }
-
             lista_adiciona(lista_formas, f);
         }
-
         else if (strcmp(comando, "l") == 0) {
             int id; double x1, y1, x2, y2; char cor[64] = "";
             int n_lidos = sscanf(buffer, "l %i %lf %lf %lf %lf %s", &id, &x1, &y1, &x2, &y2, cor);
-
             if (n_lidos < 5) continue;
-
             Forma f = linha_cria(id, x1, y1, x2, y2, cor);
-
-            if (f && svg_file) {
-                forma_desenhaSvg(f, svg_file);
-            }
-
             lista_adiciona(lista_formas, f);
         }
-
         else if (strcmp(comando, "t") == 0) {
             int id;
             double x, y;
@@ -112,24 +77,14 @@ Lista processaGeo(const char *path_geo, const char *path_svg_geo) {
                 txto[strcspn(txto, "\r\n")] = 0;
             }
 
-
             Estilo estilo_temp = estilo_cria(fFamily, fWeight, fSize);
-            
             Forma f = texto_cria(id, x, y, corb, corp, a, txto, estilo_temp);
-
-
-            if (f && svg_file) {
-                forma_desenhaSvg(f, svg_file);
-
-                lista_adiciona(lista_formas, f);
-            }
+            lista_adiciona(lista_formas, f);
         }
-
         else if (strcmp(comando, "ts") == 0) {
             char family[32], weight[8];
             double size;
             int n_lidos = sscanf(buffer, "ts %s %s %lf", family, weight, &size);
-
             if (n_lidos == 3) {
                 strcpy(fFamily, family);
                 strcpy(fWeight, weight);
@@ -137,14 +92,10 @@ Lista processaGeo(const char *path_geo, const char *path_svg_geo) {
             }
         }
     }
+
     int num_formas = lista_tamanho(lista_formas);
-    printf("DEBUG processaGeo: %d formas criadas e adicionada\n", num_formas);
-
-    if (svg_file) {
-        svg_finaliza(svg_file);
-    }
-
-        
+    printf("DEBUG processaGeo: %d formas criadas e adicionadas\n", num_formas);
+    
     fclose(arquivo_geo);
     return lista_formas;
 }
