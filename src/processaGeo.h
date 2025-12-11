@@ -12,7 +12,12 @@
 * Gera a lista com as formas posicionadas, e tambem o svg inicial.
 */
 
-
-Lista processaGeo(const char *dir_entrada, const char *path_geo);
+/**
+ * @brief Processa o arquivo geo e gera a lista de formas.
+ * @param dir_entrada
+ * @param path_geo 
+ * @return Lista 
+ */
+Lista processaGeo(const char *path_geo);
 
 #endif
