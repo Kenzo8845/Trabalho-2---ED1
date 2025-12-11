@@ -2,8 +2,10 @@
 #define LISTA_H
 
 /*
-*TAD de Lista generica, com a logica de primeiro a entrar sera o primeiro a sair.
-*Este arquivo contem as funções básicas para manipulação das Lista.
+* TAD Lista Genérica.
+* Estrutura de dados dinâmica duplamente ou simplesmente encadeada (conforme implementação).
+* Utilizada para armazenar coleções de formas, anteparos e eventos da varredura.
+* Permite inserção no fim e remoção de qualquer posição.
 */
 
 #include <stdbool.h>
@@ -13,50 +15,72 @@
 */
 typedef struct lista* Lista;
 
-/*
-* Cria uma Lista vazia.
-* Retorna: um ponteiro para a Lista criada.
-*/
+/*==========================*/
+/* Construtor da Lista      */
+/*==========================*/
+/**
+ * @brief Cria uma nova lista vazia.
+ * @return Lista Um ponteiro para a lista criada, ou NULL se falhar.
+ */
 Lista lista_cria();
 
-/*
-* Insere um elemento no final da Lista.
-* Parametros:
-* - l: uma Lista ja existente 
-* - e: um elemento que sera alocado no fim.
-*/
+/*==========================*/
+/* Operações de Inserção    */
+/*==========================*/
+/**
+ * @brief Insere um elemento genérico no final da lista.
+ * @param l A lista onde o elemento será inserido.
+ * @param e O ponteiro para o elemento a ser armazenado.
+ */
 void lista_adiciona(Lista l, void* e);
 
-/*
-* Retira um elemento do inicio da Lista.
-* Parametros: uma Lista 'l' na qual se quer retirar o elemento.
-* Retorna: um ponteiro para o elemento retirado, ou NULL, caso a Lista esteja vazia.
-*/
-void* lista_retiraDoInicio(Lista l);
+/*==========================*/
+/* Operações de Remoção     */
+/*==========================*/
+/**
+ * @brief Busca e remove um elemento específico da lista.
+ * @param l A lista de onde retirar.
+ * @param e O ponteiro do elemento a ser removido (comparação por ponteiro).
+ * @return void* O elemento removido, ou NULL se não encontrado/lista vazia.
+ */
+void* lista_retira(Lista l, void* e);
 
-/*
-* Mostra o numero de elementos da Lista.
-* Parametros: a Lista 'l' qual sera retornado o tamanho.
-* Retorna: o tamanho da Lista.
-*/
+/*==========================*/
+/* Consultas e Status       */
+/*==========================*/
+/**
+ * @brief Retorna o número atual de elementos na lista.
+ * @param l A lista consultada.
+ * @return int O tamanho da lista.
+ */
 int lista_tamanho(Lista l);
 
-/*
-* Verifica se a Lista esta vazia.
-* Parametros: a Lista a ser verificada.
-* Retorna:  
-* True: caso ela esteja vazia.
-* False: caso haja qualquer elemento nela.
-*/
+/**
+ * @brief Verifica se a lista não contém elementos.
+ * @param l A lista consultada.
+ * @return true Se estiver vazia.
+ * @return false Se houver pelo menos um elemento.
+ */
 bool lista_vazia(Lista l);
 
-/*
-* Libera toda a memória usada pela Lista.
-* Parametros: a Lista 'l' a ser destruida.
-* IMPORTANTE: não libera a memória dos elementos apontados.
-*/
+/*==========================*/
+/* Destrutor                */
+/*==========================*/
+/**
+ * @brief Destrói a estrutura da lista.
+ * Nota: Dependendo da implementação, pode ou não liberar o conteúdo (payload).
+ * Geralmente libera apenas os nós da lista.
+ * @param l A lista a ser destruída.
+ */
 void lista_destruir(Lista l);
 
-
+/**
+ * @brief Retorna um array com todos os elementos da lista.
+ * ATENÇÃO: O array retornado deve ser liberado com free().
+ * @param l Lista.
+ * @param n Retorna o número de elementos.
+ * @return void** Array de ponteiros, ou NULL em caso de erro.
+ */
+void** lista_para_array(Lista l, int* n);
 
 #endif

@@ -28,7 +28,7 @@ Lista lista_cria() {
     return (Lista)ListaNova;
 }
 
-void lista_adicionaAoFim(Lista l, void* elemento) {
+void lista_adiciona(Lista l, void* elemento) {
     EstruturaLista *lista = (EstruturaLista*) l;
     
     if (lista == NULL || elemento == NULL) {
@@ -49,9 +49,6 @@ void lista_adicionaAoFim(Lista l, void* elemento) {
 
     if(lista->tamanho == 0) {
 
-        NovoFim->prox = NULL;
-        NovoFim->elemento = elemento;
-
         lista->inicio = NovoFim;
         lista->fim = NovoFim;
 
@@ -67,7 +64,7 @@ void lista_adicionaAoFim(Lista l, void* elemento) {
     return;
 }
 
-void* lista_retiraDoInicio(Lista l) {
+void* lista_retira(Lista l, void* e) {
     EstruturaLista* lista = (EstruturaLista*) l;
     if (lista == NULL) {
         printf("nao foi possivel criar a lista em: lista_retiraDoInicio\n");
@@ -79,20 +76,37 @@ void* lista_retiraDoInicio(Lista l) {
         return NULL;
     }
 
-    NoLista* ItemRetirado = lista->inicio;
-    void* ItemRetorno = lista->inicio->elemento;
-
-    lista->inicio = lista->inicio->prox;
+    NoLista* atual = lista->inicio;
+    NoLista* anterior = NULL;
     
-    if (lista->inicio == NULL) {
-        lista->fim = NULL;
+    while (atual != NULL) {
+        if (atual->elemento == e) {
+            if (anterior == NULL) {
+                // Removendo o primeiro
+                lista->inicio = atual->prox;
+                if (lista->inicio == NULL) {
+                    lista->fim = NULL;
+                }
+            } else {
+                anterior->prox = atual->prox;
+                if (atual == lista->fim) {
+                    lista->fim = anterior;
+                }
+            }
+            
+            void* elem = atual->elemento;
+            free(atual);
+            lista->tamanho--;
+            return elem;
+        }
+        
+        anterior = atual;
+        atual = atual->prox;
     }
-
-    free(ItemRetirado);
-    lista->tamanho--;
-
-    return ItemRetorno;
+    
+    return NULL;
 }
+
 
 int lista_tamanho(Lista l) {
     EstruturaLista* lista = (EstruturaLista*) l;
@@ -130,4 +144,35 @@ void lista_destruir(Lista l) {
     }
 
     free(lista);
+}
+
+
+void** lista_para_array(Lista l, int* n) {
+    EstruturaLista* lista = (EstruturaLista*)l;
+    if (lista == NULL || n == NULL) {
+        if (n) *n = 0;
+        return NULL;
+    }
+
+    if (lista->tamanho == 0) {
+        *n = 0;
+        return NULL;
+    }
+
+    void** array = (void**)malloc(lista->tamanho * sizeof(void*));
+    if (array == NULL) {
+        *n = 0;
+        return NULL;
+    }
+
+    NoLista* atual = lista->inicio;
+    int idx = 0;
+    
+    while (atual != NULL) {
+        array[idx++] = atual->elemento;
+        atual = atual->prox;
+    }
+
+    *n = lista->tamanho;
+    return array;
 }
